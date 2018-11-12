@@ -8,8 +8,10 @@ HelloWorld  (base directory)
     .gitignore  (用于忽略文件或目录)
 
     project/
-        xx.scala (defines helper objects and one-off plugins，辅助对象和一次性插件)
-        xx.sbt (并不等价于基本目录下的sbt文件)
+        build.properties
+        xx.sbt (辅助对象和一次性插件等)
+        project/
+        target
 
     src/
         main/
@@ -24,4 +26,16 @@ HelloWorld  (base directory)
     target/ (generated files, like compiled classes, packaged jars, managed files, caches, and documentation)
 </pre>
 
-`src/`中其他的目录将被忽略（包括隐藏目录）。sbt构建产生的文件（编译生成的class文件、打包生成的jar包等）默认放在target目录下
+关于代码源文件，sbt能够自动找到以下文件：
+
+- 项目根目录下的源文件
+- src/main/scala和src/main/java目录下的源文件
+- src/test/scala和src/test/scala目录下的测试文件
+- src/main/resources和src/test/resources下的数据文件
+- lib目录下的jar包
+
+target目录下存放的是sbt构建产生的文件（编译生成的class文件、打包生成的jar包等），因此一般需要将这个文件夹放在.gitignore文件中。
+
+build.sbt文件中存放的是构建定义的描述(实际上，这个文件只需要以.sbt为结尾，名字并不重要)。另外，在project文件夹下的，以scala或sbt为结尾的文件，也是构建定义的一部分。
+
+project文件夹，build.properties文件指定使用哪个版本的sbt来编译当前项目。plugins.sbt指定当前项目需要使用的插件。
