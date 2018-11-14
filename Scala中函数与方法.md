@@ -110,7 +110,7 @@ You can make this conversion explicit by writing `s1 _` or `s1(_,_)` instead of 
 直接调用s1，是执行s1这个方法，但是缺少这个方法所需要的参数，因此报`missing argument`的错误。后面又提示了，
 方法只有在传入一个需要函数类型的地方的时候，才会被编译器转换为一个函数，其他情况下不会自动转换。
 
-## 方法转换为函数
+### 方法转换为函数
 
 在需要函数的地方传入一个方法，编译器会自动完成转化。另外，也可以手动转换：
 
@@ -126,3 +126,23 @@ s1Function: (Int, Int) => Int = $$Lambda$1227/119819655@210c4071
 scala> val s1Fun2: (Int, Int) => Int = s1
 s1Fun2: (Int, Int) => Int = $$Lambda$1247/1721826017@53a1cff1
 ```
+
+### 嵌套使用
+
+```
+scala> def hello = {
+     | var t = 3
+     | println("t = " + t)
+     | () => {
+     | t = t + 3
+     | println(t)
+     | }
+     | }
+hello: () => Unit
+
+scala> hello
+t = 3
+res0: () => Unit = $$Lambda$1079/2027549979@23ed382c
+```
+
+上面的这段代码，以def定义方法的形式，实际上得到的是个函数(对象)，所以直接调用，不加括号，只能看到第一条打印。
