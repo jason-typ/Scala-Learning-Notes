@@ -16,7 +16,7 @@ sbt-protoc是一个插件，可以从`proto`文件直接生成Jar包，不需要
   然后sbt import一下。(直接放到`project/plugins.sbt`里面是一样的使用方法)
 2. 修改`build.sbt`文件
 
-  如果是想产生ScalaPB，在`build.sbt`文件中添加以下内容：
+  如果是想产生ScalaPB，在`build.sbt`文件(project settings里)中添加以下内容：
 
   ```
   PB.targets in Compile := Seq(

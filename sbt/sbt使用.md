@@ -10,6 +10,8 @@
 - reload，重新加载构建定义(构建定义由`build.sbt`、`project/*.scala`、`project/*.sbt`共同构成，在修改了这些文件之后都需要reload一下，这个操作在IDEA中会自动询问是否reload)
 - publish，编译打包后，将代码发布到远程仓库
 - publishLocal，发布到本地仓库(~/.ivy2)
+- projects，列出当前目录下的项目
+- project \<projectName\>，选择某个project
 
 ### sbt插件
 
@@ -22,6 +24,8 @@ sbt-pack插件会打包一个带有启动脚本的Scala包。命令介绍
   - 其中包括一个可执行程序以及所有用到的包(bin目录下)
   - 包括`scala-library.jar`在内的所有依赖的jar包都被(单独)放置在`target/lib`目录下，所以这个可分发的包在另一台机器上运行时，只需要有Java运行环境即可(需要的包都放置在了lib目录下)
   - 另外还有一个Makefile，用来安装这个程序(使用`make install`命令)
+  - 支持多模块项目
+  - 用于创建可运行的Docker images很方便
 - `sbt packArchive`在target目录下创建一个可分发的打包文件
   - 这个命令相当于先执行`sbt pack`，然后将pack目录打包，命名为`{project name}-{version}.tar.gz`放置在`target`目录下
 
@@ -52,3 +56,25 @@ packMain := Map("hellome" -> "com.tang.Hello")
 **进一步配置**
 
 sbt-pack插件还有完整的配置，没有查看。感兴趣可以去[GitHub](https://github.com/xerial/sbt-pack)查看。
+
+### 使项目直接依赖GitHub上的源码，而不是一个jar包
+
+具体做法是在sbt文件中添加远程git地址的依赖关系，如依赖一个简单的log4j2的Appender的实现：
+
+1. 获取到git仓库的地址(uri)
+2. 修改项目sbt文件，添加依赖
+
+```sbt
+lazy val appenders = RootProject( uri("git://github.com/jason-typ/log4jAppenders") )
+lazy val consumer = (project in file("."))
+  .settings(
+    name := "mockconsumer",
+    version := "0.1",
+    scalaVersion := "2.12.6",
+    libraryDependencies ++= Seq(scala_logging...),
+  )
+  .enablePlugins(PackPlugin)
+    .dependsOn(appenders)
+```
+
+这样在编译、打包本项目时，会自动引用到远程库，下载并编译。

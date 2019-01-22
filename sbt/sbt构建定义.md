@@ -56,7 +56,7 @@ lazy val projectName = (project in file("."))
 
 1. 构建子项目
 
-  使用多项目 .sbt构建方式来构建子项目会很方便，如：
+  把多个具有相互联系的子项目放在一起构建会很有用。使用多项目sbt构建方式来构建子项目会很方便，如：
 
   ```sbt
   ThisBuild / scalaVersion := "2.12.6"
@@ -75,8 +75,15 @@ lazy val projectName = (project in file("."))
     )
   ```
 
-上面定义了两个构建定义(即两个Project，两个项目)：hello和helloCore。项目的根目录分别是"."和"./core"。
-如果想要单独编译子项目，可以在sbt中使用命令`helloCore/compile`。
+构建中的每个子项目都有自己的source目录，scala文件可以直接放到这个source目录下，当然更多情况是放在source目录下的`src/main/scala`下。上面定义了两个构建定义(即两个Project，两个项目)：hello和helloCore，项目的根目录分别是"."和"./core"。source文件夹下的任意`.sbt`文件都会被编译，并作用于当前子项目(core目录下的项目，但其实这部分sbt定义也会被编译进整个项目的构建定义，只是作用于局限于这个子项目——覆盖定义)。
+运行package命令时，每个子项目都会产生自己的jar包。val的名字是子项目的标识ID。这里遇到一个坑，在子项目(core文件夹)中定义project时，项目定义的变量应该保持一致，否则会提示找不到。也就是说在core文件夹的build.sbt文件中需要定义：
+```sbt
+lazy val helloCore = (project inf file("."))
+  .settings...
+```
+如果前后两个helloCore的名字不一致，sbt会找不到这个项目，从而报错。
+
+如果想要单独编译子项目，可以使用`project`命令切换当前project为子project，然后执行编译命令。或者也可以直接在sbt中使用命令`helloCore/compile`编译非当前project。
 
 2. 项目间的依赖
 
@@ -104,8 +111,7 @@ lazy val projectName = (project in file("."))
       name := "core"
     )
   ```
-这样就指定了项目root依赖于项目core。此时在项目root中要想使用core打包生成的jar包，首先需要先对core完成编译打包，以及发布，
-让root项目能够找到这个jar包。在本地，可以使用`publishLocal`命令发布到.ivy2目录下。
+这样就指定了项目root依赖于项目core。此时在项目root中要想使用core打包生成的jar包，首先需要先对core完成编译打包，以及发布，让root项目能够找到这个jar包。在本地，可以使用`publishLocal`命令发布到.ivy2目录下。
 当然，手动的打包完成后，把jar包放在lib目录下也是可以的.
 
 3. 命令的广播
